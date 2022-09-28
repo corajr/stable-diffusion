@@ -18,10 +18,10 @@ from omegaconf import OmegaConf
 from backend.invoke_ai_web_server import InvokeAIWebServer
 
 
-def main():
+def main(args=None):
     """Initialize command-line parsers and the diffusion model"""
     opt  = Args()
-    args = opt.parse_args()
+    args = opt.parse_args(args=args)
     if not args:
         sys.exit(-1)
 

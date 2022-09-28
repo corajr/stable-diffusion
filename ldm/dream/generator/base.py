@@ -72,7 +72,7 @@ class Generator():
                 image = make_image(x_T)
                 results.append([image, seed])
                 if image_callback is not None:
-                    image_callback(image, seed, first_seed=first_seed)
+                    image_callback(image, seed)
                 seed = self.new_seed()
         return results
     

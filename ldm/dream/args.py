@@ -128,10 +128,10 @@ class Args(object):
         self._arg_switches = self.parse_cmd('')   # fill in defaults
         self._cmd_switches = self.parse_cmd('')   # fill in defaults
 
-    def parse_args(self):
+    def parse_args(self, args=None):
         '''Parse the shell switches and store.'''
         try:
-            self._arg_switches = self._arg_parser.parse_args()
+            self._arg_switches = self._arg_parser.parse_args(args=args)
             return self._arg_switches
         except:
             return None
