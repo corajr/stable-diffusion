@@ -56,18 +56,19 @@ def main():
     if os.path.exists(args.timestamps):
         with open(args.timestamps, 'r') as f:
             timestamps = [float(x.strip()) for x in f.readlines()]
-
-        srtfile = f'{prefix}.srt'
-        if not os.path.exists(srtfile):
-            subtitles = []
-            for i, (t_1, t_2)in enumerate(itertools.pairwise(timestamps)):
-                t_1 = datetime.timedelta(seconds=t_1)
-                t_2 = datetime.timedelta(seconds=t_2)
-                subtitles.append(srt.Subtitle(i, t_1, t_2, lines[i]))
-            with open(srtfile, 'w') as f:
-                f.write(srt.compose(subtitles))
     else:
         timestamps = range(len(lines))
+
+    srtfile = f'{prefix}.srt'
+    if not os.path.exists(srtfile):
+        subtitles = []
+        for i, (t_1, t_2)in enumerate(itertools.pairwise(timestamps)):
+            t_1 = datetime.timedelta(seconds=t_1)
+            t_2 = datetime.timedelta(seconds=t_2)
+            subtitles.append(srt.Subtitle(i, t_1, t_2, lines[i]))
+        with open(srtfile, 'w') as f:
+            f.write(srt.compose(subtitles))
+
     outfile = f"{prefix}.mp4"
     if not os.path.exists(outfile):
         img_glob = os.path.join(path, f"%06d.{args.seed}.png")
