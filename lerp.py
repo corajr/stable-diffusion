@@ -1,9 +1,11 @@
 import argparse
+import datetime
 import itertools
 import numpy as np
 import os
 import subprocess
 from scripts import dream
+import srt
 import sys
 
 
@@ -14,21 +16,34 @@ def main():
     parser.add_argument('-W', '--height', help='Height of video.', default=512)
     parser.add_argument('-r', '--rate', help='Framerate of video.', default=12)
     parser.add_argument('-s', '--steps', help='Steps to sample.', default=30)
+    parser.add_argument('--from_srt', help='SRT file to use for prompts.', default='')
     parser.add_argument('-S', '--seed', help='Seed shared between images', default=1)
     parser.add_argument('--timestamps', help='File with floats of each line of infile.', default='')
     parser.add_argument('--audio', help='File with audio.', default='')
     parser.add_argument('-t', '--inbetweens', help='Number of frames to interpolate.', default=12)
     parser.add_argument('--style', help='Style appended to each prompt')
-    parser.add_argument('infile')
+    parser.add_argument('infile', nargs='?')
     args = parser.parse_args()
 
-    path, _ = os.path.splitext(args.infile)
+    infile = args.infile or args.from_srt or None
+    if not infile:
+        print("No input given.")
+        parser.print_usage()
+        sys.exit(0)
+
+    path, _ = os.path.splitext(infile)
     path = path + "_" + str(args.seed)
     prefix = os.path.basename(path)
     prompt_file = path + '_lerp.txt'
 
-    with open(args.infile, 'r') as f:
-        lines = f.readlines()
+    if os.path.exists(args.from_srt):
+        with open(args.from_srt, 'r') as f:
+            subs = list(srt.parse(f.read()))
+        print(subs)
+        lines = [sub.content for sub in subs]
+    else:
+        with open(infile, 'r') as f:
+            lines = f.readlines()
     
     inbetweens = list(gen_inbetweens(lines, args))
     if not os.path.exists(prompt_file):
@@ -52,7 +67,7 @@ def main():
             with open(srtfile, 'w') as f:
                 f.write(srt.compose(subtitles))
     else:
-        timestamps = range(len(inbetweens))
+        timestamps = range(len(lines))
     outfile = f"{prefix}.mp4"
     if not os.path.exists(outfile):
         img_glob = os.path.join(path, f"%06d.{args.seed}.png")
